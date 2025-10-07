@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual env
+venv/
+env/
+
+# Django stuff
+db.sqlite3
+staticfiles/
+media/
+
+# Secrets
+.env
+*.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Node (if using React/Tailwind)
+node_modules/
+build/
+dist/
