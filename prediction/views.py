@@ -1,5 +1,4 @@
 from django.conf import settings
-import jwt 
 import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,7 +10,6 @@ from google import genai
 
 # Sidereal mode (Lahiri)
 swe.set_sid_mode(swe.SIDM_LAHIRI)
-
 
 def get_sidereal_longitude(jd_ut, planet):
     """Return sidereal longitude of a planet"""
@@ -25,43 +23,19 @@ def get_sidereal_longitude(jd_ut, planet):
 logger = logging.getLogger(__name__)
 
 class AstroThanglishAPIView(APIView):
-    permission_classes = [AllowAny]  # keep as-is if route should still be public
-
-    def _get_token_from_header(self, request):
-        auth = request.headers.get("Authorization", "") or request.META.get("HTTP_AUTHORIZATION", "")
-        if auth.startswith("Bearer "):
-            return auth.split(" ", 1)[1].strip()
-        return None
-
-    def _username_from_request_user(self, request):
-        try:
-            user = getattr(request, "user", None)
-            if user and user.is_authenticated:
-                return getattr(user, "username", None) or getattr(user, "email", None)
-        except Exception:
-            pass
-        return None
-
-    def _decode_jwt_hs256(self, token):
-        try:
-            # Verify signature using your Django SECRET_KEY (only if token signed by you)
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-            # Common claims: 'username', 'sub', 'email', 'preferred_username'
-            return payload.get("username") or payload.get("preferred_username") or payload.get("email") or payload.get("sub")
-        except jwt.InvalidTokenError:
-            return None
-
-    def _unsafe_read_jwt(self, token):
-        # Use only as last-resort for logging/display. Do NOT use for auth decisions.
-        try:
-            payload = jwt.decode(token, options={"verify_signature": False})
-            return payload.get("username") or payload.get("preferred_username") or payload.get("email") or payload.get("sub")
-        except Exception:
-            return None
+    permission_classes = [AllowAny]  # Public route
 
     def post(self, request, *args, **kwargs):
+
+
         try:
-            # --- your existing input parsing and calculations here ---
+            # ---- Username comes from middleware ----
+            username = getattr(request, "username", None)
+            if username is None:
+                return Response({"message": "No username found in request"}, status=401)
+            
+
+            # --- Input parsing ---
             data = request.data
             year = int(data.get("year"))
             month = int(data.get("month"))
@@ -80,39 +54,21 @@ class AstroThanglishAPIView(APIView):
                 "moon_longitude": moon_long
             }
 
-            # ---- NEW: get username from different sources ----
-            username = self._username_from_request_user(request)  # best if DRF auth used
 
-            if not username:
-                token = self._get_token_from_header(request)
-                if token:
-                    # try verify with HS256 and SECRET_KEY (if token issued by your server)
-                    username = self._decode_jwt_hs256(token)
 
-                if not username and token:
-                    # last resort: read payload without verifying signature (for display only)
-                    username = self._unsafe_read_jwt(token)
-                    if username:
-                        logger.warning("Using unsafe token read (no signature verification) to extract username.")
-
-            if username:
-                logger.info(f"Username extracted for request: {username}")
-            else:
-                logger.info("No username found in request or token.")
-
-            # ---- rest of your prompt + Gemini call as before ----
+            # ---- Gemini prompt ----
             prompt = (
-                "IMPORTANT: Give ONLY the astrology prediction in Thanglish. NO greetings, NO explanations, "
+                f"IMPORTANT: Address the user by their name '{username}' in the astrology prediction. "
+                "Give ONLY the astrology prediction in Thanglish. NO greetings, NO explanations, "
                 "NO extra text, NO questions, NO suggestions. ONLY the pure prediction content.\n\n"
                 "Astrology Data:\n"
                 f"Julian Day: {astrology_data['julian_day']}\n"
                 f"Sun Longitude: {astrology_data['sun_longitude']}\n"
                 f"Moon Longitude: {astrology_data['moon_longitude']}\n\n"
                 "Based on this data, provide ONLY the astrology prediction in Thanglish (Tamil+English mix). "
-                "Keep it concise (8-10 lines maximum). Start directly with the prediction, no introductions."
+                "Keep it concise (8-10 lines maximum). Start directly with the prediction, addressing the user by name."
             )
 
-            # serializer validation and Gemini call (same as your code)...
             serializer = GenerateTextSerializer(data={"prompt": prompt, "model": model})
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -125,7 +81,7 @@ class AstroThanglishAPIView(APIView):
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(model=model, contents=validated_prompt)
 
-            # extract text_output same as before
+            # Extract text_output
             text_output = getattr(response, "text", None)
             if not text_output:
                 try:
@@ -135,7 +91,6 @@ class AstroThanglishAPIView(APIView):
                 except Exception:
                     text_output = str(response)
 
-            # Return username (if any) for debugging / display
             return Response(
                 {
                     "username": username,

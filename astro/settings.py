@@ -42,6 +42,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'prediction.middleware.AccessTokenMiddleware',
 ]
 
 ROOT_URLCONF = "astro.urls"

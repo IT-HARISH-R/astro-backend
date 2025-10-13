@@ -13,26 +13,24 @@ class User(AbstractUser):
         (ROLE_CUSTOMER, "Customer"),
     )
 
-    # Fields
     username = models.CharField(max_length=150, unique=False)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CUSTOMER)
+    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
 
-    # Optional profile image
-    profile_image = models.ImageField(
-        upload_to='profile_images/',  # folder inside MEDIA_ROOT
-        null=True,  # not required
-        blank=True  # not required
-    )
+    # 🌙 Birth Details
+    birth_year = models.PositiveIntegerField(null=True, blank=True)
+    birth_month = models.PositiveSmallIntegerField(null=True, blank=True)
+    birth_day = models.PositiveSmallIntegerField(null=True, blank=True)
+    birth_hour = models.PositiveSmallIntegerField(null=True, blank=True)
+    birth_minute = models.PositiveSmallIntegerField(null=True, blank=True)
 
-    # Login using email
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
     def __str__(self):
         return f"{self.username} ({self.role})"
 
-    # Helper methods for checking roles
     def is_admin(self):
         return self.role == self.ROLE_ADMIN
 

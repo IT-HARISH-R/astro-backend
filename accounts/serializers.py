@@ -7,13 +7,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('password', 'username', 'email', 'role', 'profile_image')  # include profile_image
+        fields = (
+            'password', 'username', 'email', 'role', 'profile_image',
+            'birth_year', 'birth_month', 'birth_day', 'birth_hour', 'birth_minute'
+        )
         read_only_fields = ('id',)
         
     def create(self, validated_data):
-        password = validated_data.pop("password")  # remove password from dict
-        user = User.objects.create(**validated_data)  # create user without password
-        user.set_password(password)  # set hashed password
+        password = validated_data.pop("password")
+        user = User.objects.create(**validated_data)
+        user.set_password(password)
         user.save()
         return user
 
@@ -21,4 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "email", "first_name", "last_name", "role")
+        fields = (
+            "id", "username", "email", "first_name", "last_name", "role",
+            "birth_year", "birth_month", "birth_day", "birth_hour", "birth_minute"
+        )
