@@ -25,6 +25,8 @@ class User(AbstractUser):
     birth_hour = models.PositiveSmallIntegerField(null=True, blank=True)
     birth_minute = models.PositiveSmallIntegerField(null=True, blank=True)
 
+    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 

@@ -1,5 +1,9 @@
 from pathlib import Path
 from decouple import config
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,6 +47,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'prediction.middleware.AccessTokenMiddleware',
+    'accounts.middleware.LogRequestMiddleware'
 ]
 
 ROOT_URLCONF = "astro.urls"
@@ -155,8 +160,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:9000",
 ]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 
 APPEND_SLASH = False
@@ -168,3 +173,23 @@ WHATSAPP_TOKEN = config("WHATSAPP_TOKEN")
 PHONE_NUMBER_ID = config("PHONE_NUMBER_ID")
 VERIFY_TOKEN = config("VERIFY_TOKEN")
 GEMINI_API_KEY = config("GEMINI_API_KEY")
+
+CORS_ALLOW_ALL_ORIGINS = True  # allow React frontend to access
+
+
+
+
+
+CLOUD_NAME = config("CLOUD_NAME")
+API_KEY = config("API_KEY")
+API_SECRET = config("API_SECRET")
+
+
+# import cloudinary
+
+cloudinary.config(
+  cloud_name = CLOUD_NAME,
+  api_key = API_KEY,
+  api_secret = API_SECRET
+)
+
