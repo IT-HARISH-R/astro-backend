@@ -24,6 +24,7 @@ class AccessTokenMiddleware(MiddlewareMixin):
                         user = User.objects.get(id=user_id)
                         request.user = user  # attach full Django user object
                         request.username = user.username
+                        request.user_id = user.id
                     except User.DoesNotExist:
                         return JsonResponse({"error": "User not found"}, status=401)
                 else:
@@ -35,3 +36,4 @@ class AccessTokenMiddleware(MiddlewareMixin):
             request.user_payload = None
             request.user = None
             request.username = None
+            request.user_id = None

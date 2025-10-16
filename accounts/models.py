@@ -13,10 +13,10 @@ class User(AbstractUser):
         (ROLE_CUSTOMER, "Customer"),
     )
 
-    username = models.CharField(max_length=150, unique=False)
+    username = models.CharField(max_length=150,unique=False)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CUSTOMER)
-    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    
 
     # 🌙 Birth Details
     birth_year = models.PositiveIntegerField(null=True, blank=True)
@@ -24,8 +24,9 @@ class User(AbstractUser):
     birth_day = models.PositiveSmallIntegerField(null=True, blank=True)
     birth_hour = models.PositiveSmallIntegerField(null=True, blank=True)
     birth_minute = models.PositiveSmallIntegerField(null=True, blank=True)
+    # Horoscope - imeage update later
+    profile_image = models.URLField(max_length=500, blank=True, null=True)
 
-    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -39,5 +40,6 @@ class User(AbstractUser):
     def is_astrologer(self):
         return self.role == self.ROLE_ASTROLOGER
 
-    def is_customer(self):
+    def is_customer(self): 
         return self.role == self.ROLE_CUSTOMER
+ 

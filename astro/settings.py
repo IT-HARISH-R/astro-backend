@@ -160,8 +160,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:9000",
 ]
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 APPEND_SLASH = False
@@ -185,7 +185,6 @@ API_KEY = config("API_KEY")
 API_SECRET = config("API_SECRET")
 
 
-# import cloudinary
 
 cloudinary.config(
   cloud_name = CLOUD_NAME,

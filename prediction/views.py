@@ -1,4 +1,5 @@
 from django.conf import settings
+from .models import Prediction   
 import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from rest_framework.permissions import AllowAny
 import swisseph as swe
 from ai.serializers import GenerateTextSerializer
 from google import genai
+from accounts.models import User
 
 # Sidereal mode (Lahiri)
 swe.set_sid_mode(swe.SIDM_LAHIRI)
@@ -34,7 +36,7 @@ class AstroThanglishAPIView(APIView):
             if username is None:
                 return Response({"message": "No username found in request"}, status=401)
             
-
+                       
             # --- Input parsing ---
             data = request.data
             year = int(data.get("year"))
@@ -83,6 +85,7 @@ class AstroThanglishAPIView(APIView):
 
             # Extract text_output
             text_output = getattr(response, "text", None)
+
             if not text_output:
                 try:
                     cand = response.get("candidates", [])
@@ -90,6 +93,21 @@ class AstroThanglishAPIView(APIView):
                         text_output = cand[0].get("content") or cand[0].get("output") or str(cand[0])
                 except Exception:
                     text_output = str(response)
+            
+            user = getattr(request, "user", None)
+            
+            if not user:
+                return Response({"message": "User not found or unauthorized"}, status=401)
+
+            prediction = Prediction.objects.create(
+                user=user,  # ✅ pass full user object, not user.id
+                julian_day=jd_ut,
+                sun_longitude=sun_long,
+                moon_longitude=moon_long,
+                thanglish_explanation=text_output or "No output"
+            )
+
+
 
             return Response(
                 {

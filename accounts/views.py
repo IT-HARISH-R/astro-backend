@@ -22,22 +22,41 @@ class ProfileView(APIView):
 # --- Update Profile ---
 class UpdateProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser)  # <--- This is required
+    parser_classes = (MultiPartParser, FormParser)
 
     def put(self, request):
         user = request.user
-        data = request.data.copy()
+        print("FILES:", request.FILES)
+        print("DATA:", request.data)
+        data = {}
 
-        # ✅ Handle profile image upload to Cloudinary
-        if "profile_image" in request.FILES:
-            image = request.FILES["profile_image"]
-            upload_result = cloudinary.uploader.upload(
-                image,
-                folder="profile_images",  # optional folder in Cloudinary
-                public_id=f"user_{user.id}",  # optional custom id
-                overwrite=True,
-            )
-            data["profile_image"] = upload_result["secure_url"]  # save URL in DB
+        # Copy non-file fields, explicitly exclude profile_image
+        for field in ["username", "first_name", "last_name", "birth_year", "birth_month", "birth_day", "birth_hour", "birth_minute"]:
+            if field in request.data:
+                data[field] = request.data[field]
+
+        # Handle profile image from request.FILES only
+        profile_file = request.FILES.get("profile_image")
+        if profile_file:
+            try:
+                # Validate file type
+                if not profile_file.content_type.startswith("image/"):
+                    return Response(
+                        {"detail": "Only image files are allowed."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                upload_result = cloudinary.uploader.upload(
+                    profile_file,
+                    folder="profile_images",
+                    public_id=f"user_{user.id}",
+                    overwrite=True,
+                )
+                data["profile_image"] = upload_result["secure_url"]
+            except Exception as e:
+                return Response(
+                    {"detail": f"Failed to upload profile image: {str(e)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         serializer = UserSerializer(user, data=data, partial=True)
         if serializer.is_valid():
@@ -46,8 +65,9 @@ class UpdateProfileView(APIView):
                 "detail": "Profile updated successfully",
                 "user": serializer.data
             })
+        print("Serializer errors:", serializer.errors)  # Debug serializer errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
 
 # --- User List (Admin Only) ---
 class UserListView(generics.ListAPIView):
