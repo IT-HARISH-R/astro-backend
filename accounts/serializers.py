@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import User
 from django.contrib.auth.password_validation import validate_password
 import re
+from prediction.serializers import PredictionSerializer 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
 
@@ -19,13 +21,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
-
+ 
 
 class UserSerializer(serializers.ModelSerializer):
+    # Sort predictions: newest first
+    predictions = serializers.SerializerMethodField()
+
+    def get_predictions(self, obj):
+        # Order predictions by created_at descending
+        predictions_qs = obj.predictions.all().order_by('-created_at')
+        return PredictionSerializer(predictions_qs, many=True).data
+
+    # Validate profile image URL
     def validate_profile_image(self, value):
-        # Allow URL or None (no file validation here, as view handles files)
         if value and isinstance(value, str):
-            if not re.match(r'^https?://[^\s/$.?#].[^\s]*$', value):
+            pattern = r'^https?://[^\s/$.?#].[^\s]*$'
+            if not re.match(pattern, value):
                 raise serializers.ValidationError("Invalid profile image URL.")
         elif value and not isinstance(value, str):
             raise serializers.ValidationError("Profile image must be a URL or null.")
@@ -34,9 +45,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "username",  # Added to support username updates
-            "first_name", "last_name",
-            "birth_year", "birth_month", "birth_day",
-            "birth_hour", "birth_minute",
+            "username",
+            "first_name",
+            "last_name",
+            "birth_year",
+            "birth_month",
+            "birth_day",
+            "birth_hour",
+            "birth_minute",
             "profile_image",
+            "predictions",
         ]
+        read_only_fields = ("predictions",)

@@ -22,7 +22,7 @@ class AccessTokenMiddleware(MiddlewareMixin):
                 if user_id:
                     try:
                         user = User.objects.get(id=user_id)
-                        request.user = user  # attach full Django user object
+                        request.user = user  
                         request.username = user.username
                         request.user_id = user.id
                     except User.DoesNotExist:

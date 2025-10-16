@@ -9,7 +9,15 @@ class Prediction(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # astrology data
+    # Input birth details
+    birth_year = models.IntegerField(null=True, blank=True)
+    birth_month = models.IntegerField(null=True, blank=True)
+    birth_day = models.IntegerField(null=True, blank=True)
+    birth_hour = models.IntegerField(null=True, blank=True)
+    birth_minute = models.IntegerField(null=True, blank=True)
+
+
+    # Calculated astrology data
     julian_day = models.FloatField()
     sun_longitude = models.FloatField()
     moon_longitude = models.FloatField()

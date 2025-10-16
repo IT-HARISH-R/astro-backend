@@ -8,7 +8,6 @@ from rest_framework.permissions import AllowAny
 import swisseph as swe
 from ai.serializers import GenerateTextSerializer
 from google import genai
-from accounts.models import User
 
 # Sidereal mode (Lahiri)
 swe.set_sid_mode(swe.SIDM_LAHIRI)
@@ -95,17 +94,23 @@ class AstroThanglishAPIView(APIView):
                     text_output = str(response)
             
             user = getattr(request, "user", None)
-            
+
             if not user:
                 return Response({"message": "User not found or unauthorized"}, status=401)
 
             prediction = Prediction.objects.create(
-                user=user,  # ✅ pass full user object, not user.id
+                user=user,
+                birth_year=year,
+                birth_month=month,
+                birth_day=day,
+                birth_hour=hour,
+                birth_minute=minute,
                 julian_day=jd_ut,
                 sun_longitude=sun_long,
                 moon_longitude=moon_long,
                 thanglish_explanation=text_output or "No output"
             )
+
 
 
 
