@@ -55,5 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
             "birth_minute",
             "profile_image",
             "predictions",
+            'is_premium', 
+            'plan_type'
         ]
         read_only_fields = ("predictions",)

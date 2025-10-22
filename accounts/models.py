@@ -16,7 +16,9 @@ class User(AbstractUser):
     username = models.CharField(max_length=150,unique=False)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CUSTOMER)
-    
+   
+    is_premium = models.BooleanField(default=False)
+    plan_type = models.CharField(max_length=50, default='free')  # free/premium
 
     # 🌙 Birth Details
     birth_year = models.PositiveIntegerField(null=True, blank=True)
