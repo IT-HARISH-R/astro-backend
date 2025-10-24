@@ -8,7 +8,9 @@ urlpatterns = [
     path("api/auth/", include("accounts.urls")),
     path("data/",include("prediction.urls")),
     path("ai/",include("ai.urls")),
-     path('bot/', include('bot.urls'))
+    path('bot/', include('bot.urls')),
+    path('plans/', include('plans.urls')),
+
 ]
 
 if settings.DEBUG:

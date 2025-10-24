@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "ai",
     'bot',
     'payments',
+    'plans',
 ]
 
 MIDDLEWARE = [

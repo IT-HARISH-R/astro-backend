@@ -55,6 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
             "birth_minute",
             "profile_image",
             "predictions",
+            "role",
             'is_premium', 
             'plan_type'
         ]
