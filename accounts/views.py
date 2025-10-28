@@ -11,6 +11,7 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
 
+
 # --- Get Profile ---
 class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -26,8 +27,8 @@ class UpdateProfileView(APIView):
 
     def put(self, request):
         user = request.user
-        print("FILES:", request.FILES)
-        print("DATA:", request.data)
+        # print("FILES:", request.FILES)
+        # print("DATA:", request.data)
         data = {}
 
         # Copy non-file fields, explicitly exclude profile_image

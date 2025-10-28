@@ -3,6 +3,7 @@ from .models import User
 from django.contrib.auth.password_validation import validate_password
 import re
 from prediction.serializers import PredictionSerializer 
+from email_utils.services import send_account_created_email
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -20,6 +21,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()
+
+        send_account_created_email(
+            user=user,
+            subject="Welcome to Astro Platform!",
+            template_name="email_utils/account_created.html",
+            context={"custom_message": "Your account is now active!"}
+        )
+
         return user
  
 
@@ -57,6 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
             "predictions",
             "role",
             'is_premium', 
-            'plan_type'
+            'plan_type',
+            'email'
         ]
         read_only_fields = ("predictions",)
