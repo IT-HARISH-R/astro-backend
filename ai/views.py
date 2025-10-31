@@ -5,7 +5,8 @@ from rest_framework import status
 from .serializers import GenerateTextSerializer
 from rest_framework.permissions import AllowAny
 # official google genai SDK
-from google import genai
+import google.generativeai as genai
+
 
 class GenerateTextAPIView(APIView):
     """

@@ -8,9 +8,9 @@ User = get_user_model()
 
 class AccessTokenMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        print("hi")
+
         auth = request.headers.get("Authorization") or request.META.get("HTTP_AUTHORIZATION", "")
-        print(auth)
+        # print(auth)
         if auth and auth.startswith("Bearer "):
             token = auth.split(" ", 1)[1].strip()
             try:

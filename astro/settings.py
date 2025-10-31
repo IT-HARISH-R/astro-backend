@@ -31,13 +31,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "rest_framework_simplejwt",
     "accounts",
     "prediction",
     "ai",
     'bot',
     'payments',
     'plans',
-    'email_utils'
+    'email_utils',
+    'horoscope'
 ]
 
 MIDDLEWARE = [
@@ -50,7 +52,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'prediction.middleware.AccessTokenMiddleware',
-    'accounts.middleware.LogRequestMiddleware'
+    'accounts.middleware.LogRequestMiddleware',
+
 ]
 
 ROOT_URLCONF = "astro.urls"
@@ -78,7 +81,7 @@ WSGI_APPLICATION = "astro.wsgi.application"
 
 DATABASES = {
     "default": {
-       'ENGINE': 'django.db.backends.mysql',
+       'ENGINE': 'mysql.connector.django',
         'NAME': 'astrology',
         'USER': 'root',
         'PASSWORD': 'Harish@2004',

@@ -1,5 +1,5 @@
 from django.conf import settings
-from .models import Prediction   
+from .models import Prediction
 import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,10 +7,12 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 import swisseph as swe
 from ai.serializers import GenerateTextSerializer
-from google import genai
+import google.generativeai as genai
 
-# Sidereal mode (Lahiri)
+# Set Lahiri Ayanamsa (Sidereal mode)
 swe.set_sid_mode(swe.SIDM_LAHIRI)
+
+logger = logging.getLogger(__name__)
 
 def get_sidereal_longitude(jd_ut, planet):
     """Return sidereal longitude of a planet"""
@@ -21,31 +23,28 @@ def get_sidereal_longitude(jd_ut, planet):
     )
     return result[0]  # longitude
 
-logger = logging.getLogger(__name__)
 
 class AstroThanglishAPIView(APIView):
-    permission_classes = [AllowAny]  # Public route
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-
-
         try:
-            # ---- Username comes from middleware ----
+            # ---- Username from middleware ----
             username = getattr(request, "username", None)
             if username is None:
                 return Response({"message": "No username found in request"}, status=401)
-            
-                       
-            # --- Input parsing ---
+
+            # ---- Input data ----
             data = request.data
             year = int(data.get("year"))
             month = int(data.get("month"))
             day = int(data.get("day"))
             hour = int(data.get("hour"))
             minute = int(data.get("minute"))
-            model = data.get("model") or "gemini-2.5-flash"
+            model_name = data.get("model") or "gemini-2.5-flash"
 
-            jd_ut = swe.julday(year, month, day, hour + minute/60.0)
+            # ---- Swiss Ephemeris calculation ----
+            jd_ut = swe.julday(year, month, day, hour + minute / 60.0)
             sun_long = get_sidereal_longitude(jd_ut, swe.SUN)
             moon_long = get_sidereal_longitude(jd_ut, swe.MOON)
 
@@ -55,49 +54,55 @@ class AstroThanglishAPIView(APIView):
                 "moon_longitude": moon_long
             }
 
-
-
-            # ---- Gemini prompt ----
+            # ---- Prompt ----
             prompt = (
                 f"IMPORTANT: Address the user by their name '{username}' in the astrology prediction. "
-                "Give ONLY the astrology prediction in Thanglish. NO greetings, NO explanations, "
-                "NO extra text, NO questions, NO suggestions. ONLY the pure prediction content.\n\n"
+                "Generate ONLY the astrology prediction in Thanglish (Tamil + English mix). "
+                "DO NOT include greetings, explanations, zodiac sign names, extra text, questions, or suggestions. "
+                "ONLY provide the pure prediction content.\n\n"
                 "Astrology Data:\n"
                 f"Julian Day: {astrology_data['julian_day']}\n"
                 f"Sun Longitude: {astrology_data['sun_longitude']}\n"
                 f"Moon Longitude: {astrology_data['moon_longitude']}\n\n"
-                "Based on this data, provide ONLY the astrology prediction in Thanglish (Tamil+English mix). "
-                "Keep it concise (8-10 lines maximum). Start directly with the prediction, addressing the user by name."
+                "Based on this data, provide ONLY the astrology prediction in Thanglish (Tamil + English mix). "
+                "Keep it short and clear (maximum 8–10 lines). "
+                "Start directly with the prediction, addressing the user by their name."
             )
 
-            serializer = GenerateTextSerializer(data={"prompt": prompt, "model": model})
+            # ---- Serializer validation ----
+            serializer = GenerateTextSerializer(data={"prompt": prompt, "model": model_name})
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             validated_prompt = serializer.validated_data["prompt"]
 
+            # ---- Gemini setup ----
             api_key = settings.GEMINI_API_KEY
             if not api_key:
                 return Response({"error": "GEMINI_API_KEY not set in settings or environment"}, status=500)
 
-            client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(model=model, contents=validated_prompt)
+            genai.configure(api_key=api_key)
 
-            # Extract text_output
+            # ---- Generate content ----
+            model_instance = genai.GenerativeModel(model_name)
+            response = model_instance.generate_content(validated_prompt)
+
+            # ---- Extract Gemini output ----
             text_output = getattr(response, "text", None)
-
             if not text_output:
                 try:
-                    cand = response.get("candidates", [])
-                    if cand and isinstance(cand, list):
-                        text_output = cand[0].get("content") or cand[0].get("output") or str(cand[0])
+                    candidates = getattr(response, "candidates", [])
+                    if candidates and hasattr(candidates[0], "content"):
+                        text_output = candidates[0].content.parts[0].text
                 except Exception:
                     text_output = str(response)
-            
-            user = getattr(request, "user", None)
 
+            # ---- Validate user ----
+            user = getattr(request, "user", None)
             if not user:
                 return Response({"message": "User not found or unauthorized"}, status=401)
 
+            # ---- Save prediction ----
             prediction = Prediction.objects.create(
                 user=user,
                 birth_year=year,
@@ -111,14 +116,12 @@ class AstroThanglishAPIView(APIView):
                 thanglish_explanation=text_output or "No output"
             )
 
-
-
-
+            # ---- Response ----
             return Response(
                 {
                     "username": username,
                     "astrology_data": astrology_data,
-                    "thanglish_explanation": text_output
+                    "thanglish_explanation": text_output or "No output"
                 },
                 status=status.HTTP_200_OK
             )
