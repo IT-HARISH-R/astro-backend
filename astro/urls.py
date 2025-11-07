@@ -10,7 +10,7 @@ urlpatterns = [
     path("ai/",include("ai.urls")),
     path('bot/', include('bot.urls')),
     path('plans/', include('plans.urls')),
-    path('horo/', include('horoscope.urls')),
+    path("zodiac/", include("zodiac.urls")),
 
 ]
 

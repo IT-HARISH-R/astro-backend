@@ -23,7 +23,7 @@ def get_sidereal_longitude(jd_ut, planet):
     )
     return result[0]  # longitude
 
-
+ 
 class AstroThanglishAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -48,23 +48,33 @@ class AstroThanglishAPIView(APIView):
             sun_long = get_sidereal_longitude(jd_ut, swe.SUN)
             moon_long = get_sidereal_longitude(jd_ut, swe.MOON)
 
+            # ---- Rasi calculation based on Moon longitude ----
+            rasi_names = [
+                "Mesham", "Rishabam", "Mithunam", "Kadagam", "Simmam", "Kanni",
+                "Thulam", "Viruchigam", "Dhanusu", "Magaram", "Kumbam", "Meenam"
+            ]
+            rasi_index = int(moon_long // 30)
+            moon_rasi = rasi_names[rasi_index]
+
             astrology_data = {
                 "julian_day": jd_ut,
                 "sun_longitude": sun_long,
-                "moon_longitude": moon_long
+                "moon_longitude": moon_long,
+                "rasi": moon_rasi
             }
 
-            # ---- Prompt ----
+            # ---- Prompt (Rasi included) ----
             prompt = (
                 f"IMPORTANT: Address the user by their name '{username}' in the astrology prediction. "
                 "Generate ONLY the astrology prediction in Thanglish (Tamil + English mix). "
                 "DO NOT include greetings, explanations, zodiac sign names, extra text, questions, or suggestions. "
                 "ONLY provide the pure prediction content.\n\n"
+                f"User Rasi: {moon_rasi}\n"
                 "Astrology Data:\n"
                 f"Julian Day: {astrology_data['julian_day']}\n"
                 f"Sun Longitude: {astrology_data['sun_longitude']}\n"
                 f"Moon Longitude: {astrology_data['moon_longitude']}\n\n"
-                "Based on this data, provide ONLY the astrology prediction in Thanglish (Tamil + English mix). "
+                "Based on this data and the user's Rasi, provide ONLY the astrology prediction in Thanglish (Tamil + English mix). "
                 "Keep it short and clear (maximum 8–10 lines). "
                 "Start directly with the prediction, addressing the user by their name."
             )

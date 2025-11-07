@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "corsheaders",
+    # "corsheaders",
+    'django_apscheduler',
     "rest_framework",
     "rest_framework_simplejwt",
     "accounts",
@@ -39,7 +40,8 @@ INSTALLED_APPS = [
     'payments',
     'plans',
     'email_utils',
-    'horoscope'
+    'zodiac',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +57,26 @@ MIDDLEWARE = [
     'accounts.middleware.LogRequestMiddleware',
 
 ]
+
+CRONJOBS = [
+    # Every day at 12:00 AM
+    ('0 0 * * *', 'django.core.management.call_command', ['generate_daily_predictions']),
+]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'loggers': {
+        'zodiac.scheduler': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
+
 
 ROOT_URLCONF = "astro.urls"
 
