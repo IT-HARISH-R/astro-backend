@@ -21,3 +21,15 @@ class ZodiacPrediction(models.Model):
 
     def __str__(self):
         return f"{self.sign} - {self.date}"
+
+
+
+class LoveResult(models.Model):
+    name1 = models.CharField(max_length=100)
+    name2 = models.CharField(max_length=100)
+    love_score = models.IntegerField()
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name1} ❤️ {self.name2} = {self.love_score}%"

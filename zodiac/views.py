@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import date
 from .models import ZodiacPrediction
-from .serializers import ZodiacPredictionSerializer 
+from .serializers import ZodiacPredictionSerializer ,LoveCalculatorSerializer , LoveResult , LoveResultSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 
@@ -44,3 +44,39 @@ class RegeneratePrediction(APIView):
             return Response({"created": len(results), "predictions": ser.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"detail":"provide 'sign' or {'all':true}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoveCalculatorView(APIView):
+    def post(self, request):
+        serializer = LoveCalculatorSerializer(data=request.data)
+
+        if serializer.is_valid():
+            name1 = serializer.validated_data['name1'].strip().lower()
+            name2 = serializer.validated_data['name2'].strip().lower()
+
+            # Simple Love Calculation Logic 😄
+            combined = name1 + name2
+            score = (len(set(combined)) * 7) % 101
+
+            if score > 80:
+                msg = "Perfect Match 💞"
+            elif score > 60:
+                msg = "Good Compatibility 💕"
+            elif score > 40:
+                msg = "Average Match 💬"
+            else:
+                msg = "Needs more understanding 💔"
+
+            # ✅ Save to Database
+            love_result = LoveResult.objects.create(
+                name1=name1.title(),
+                name2=name2.title(),
+                love_score=score,
+                message=msg
+            )
+
+            result_serializer = LoveResultSerializer(love_result)
+
+            return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
