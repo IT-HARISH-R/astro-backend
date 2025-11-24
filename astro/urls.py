@@ -11,7 +11,7 @@ urlpatterns = [
     path('bot/', include('bot.urls')),
     path('plans/', include('plans.urls')),
     path("zodiac/", include("zodiac.urls")),
-
+    path("voice/", include("user_prediction.urls")), 
 ]
 
 if settings.DEBUG:

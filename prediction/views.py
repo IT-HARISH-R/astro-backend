@@ -55,7 +55,7 @@ class AstroThanglishAPIView(APIView):
             ]
             rasi_index = int(moon_long // 30)
             moon_rasi = rasi_names[rasi_index]
-
+            print(moon_rasi)
             astrology_data = {
                 "julian_day": jd_ut,
                 "sun_longitude": sun_long,

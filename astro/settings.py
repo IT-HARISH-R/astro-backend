@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'email_utils',
     'zodiac',
     'django_crontab',
+    'user_prediction',
 ]
 
 MIDDLEWARE = [
@@ -192,6 +193,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
+
 APPEND_SLASH = False
 # APPEND_SLASH = True
 
@@ -234,3 +236,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
+
+
+# Sarvam Voice
+SARVAM_API_KEY = config("SARVAM_API_KEY") 
+
+GROQ_API_KEY = "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"

@@ -58,12 +58,22 @@ class LoveCalculatorView(APIView):
             combined = name1 + name2
             score = (len(set(combined)) * 7) % 101
 
-            if score > 80:
+            if score > 90:
+                msg = "Soulmate Level ❤️🔥"
+            elif score > 80:
                 msg = "Perfect Match 💞"
+            elif score > 70:
+                msg = "Strong Compatibility ✨"
             elif score > 60:
                 msg = "Good Compatibility 💕"
+            elif score > 50:
+                msg = "Decent Match 😊"
             elif score > 40:
                 msg = "Average Match 💬"
+            elif score > 30:
+                msg = "Below Average — Needs Effort 🤝"
+            elif score > 20: 
+                msg = "Low Compatibility 😕"
             else:
                 msg = "Needs more understanding 💔"
 
@@ -74,7 +84,7 @@ class LoveCalculatorView(APIView):
                 love_score=score,
                 message=msg
             )
-
+ 
             result_serializer = LoveResultSerializer(love_result)
 
             return Response(result_serializer.data, status=status.HTTP_201_CREATED)
