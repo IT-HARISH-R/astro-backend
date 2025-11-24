@@ -179,29 +179,29 @@ AUTH_PASSWORD_VALIDATORS = []
 #     {
 #         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
 #         "OPTIONS": {"min_length": 4},
-#     }
+#     } 
 # ]
-
+ 
 CORS_ALLOW_CREDENTIALS = True
-
+ 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:9000",
 ]
-
+ 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+ 
+
+APPEND_SLASH = False 
+# APPEND_SLASH = True 
 
 
-APPEND_SLASH = False
-# APPEND_SLASH = True
 
-
-
-WHATSAPP_TOKEN = config("WHATSAPP_TOKEN")
-PHONE_NUMBER_ID = config("PHONE_NUMBER_ID")
-VERIFY_TOKEN = config("VERIFY_TOKEN")
+WHATSAPP_TOKEN = config("WHATSAPP_TOKEN") 
+PHONE_NUMBER_ID = config("PHONE_NUMBER_ID") 
+VERIFY_TOKEN = config("VERIFY_TOKEN")  
 GEMINI_API_KEY = config("GEMINI_API_KEY")
 
 CORS_ALLOW_ALL_ORIGINS = True  # allow React frontend to access
@@ -241,4 +241,4 @@ EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
 # Sarvam Voice
 SARVAM_API_KEY = config("SARVAM_API_KEY") 
 
-GROQ_API_KEY = config("GROQ_API_KEY")
+GROQ_API_KEY = config("GROQ_API_KEY") 
