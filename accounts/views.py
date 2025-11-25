@@ -19,7 +19,7 @@ class ProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
-
+ 
 # --- Update Profile ---
 class UpdateProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -32,10 +32,10 @@ class UpdateProfileView(APIView):
         data = {}
 
         # Copy non-file fields, explicitly exclude profile_image
-        for field in ["username", "first_name", "last_name", "birth_year", "birth_month", "birth_day", "birth_hour", "birth_minute"]:
-            if field in request.data:
+        for field in ["username","language","birth_place", "first_name", "last_name", "birth_year", "birth_month", "birth_day", "birth_hour", "birth_minute"]:
+            if field in request.data: 
                 data[field] = request.data[field]
-
+ 
         # Handle profile image from request.FILES only
         profile_file = request.FILES.get("profile_image")
         if profile_file:

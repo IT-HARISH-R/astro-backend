@@ -31,6 +31,7 @@ class AstroThanglishAPIView(APIView):
         try:
             # ---- Username from middleware ----
             username = getattr(request, "username", None)
+            user = getattr(request, "user", None)
             if username is None:
                 return Response({"message": "No username found in request"}, status=401)
 
@@ -65,8 +66,7 @@ class AstroThanglishAPIView(APIView):
 
             # ---- Prompt (Rasi included) ----
             prompt = (
-                f"IMPORTANT: Address the user by their name '{username}' in the astrology prediction. "
-                "Generate ONLY the astrology prediction in Thanglish (Tamil + English mix). "
+                f"Generate ONLY the astrology prediction in {user.language}. "
                 "DO NOT include greetings, explanations, zodiac sign names, extra text, questions, or suggestions. "
                 "ONLY provide the pure prediction content.\n\n"
                 f"User Rasi: {moon_rasi}\n"

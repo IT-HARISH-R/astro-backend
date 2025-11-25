@@ -12,10 +12,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'password', 'username', 'email', 'role', 'profile_image',
-            'birth_year', 'birth_month', 'birth_day', 'birth_hour', 'birth_minute'
+            'birth_year', 'birth_month', 'birth_day', 'birth_hour', 'birth_minute',
+            'language','birth_place'
         )
         read_only_fields = ('id',)
-        
+
     def create(self, validated_data):
         password = validated_data.pop("password")
         user = User.objects.create(**validated_data)
@@ -30,6 +31,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+
  
 
 class UserSerializer(serializers.ModelSerializer):
@@ -67,6 +69,9 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             'is_premium', 
             'plan_type',
-            'email'
+            'email',
+            "language",
+            "date_joined",
+            'birth_place',
         ]
         read_only_fields = ("predictions",)
