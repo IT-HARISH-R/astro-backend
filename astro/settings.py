@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'zodiac',
     'django_crontab',
     'user_prediction',
+    "future_predictions",
 ]
 
 MIDDLEWARE = [

@@ -11,9 +11,10 @@ logger = logging.getLogger(__name__)
 def start():
     scheduler = BackgroundScheduler(timezone="Asia/Kolkata")
 
-    @register_job(scheduler, "cron", hour=0, minute=1)  
+    @register_job(scheduler, "cron", hour=11, minute=1)  
     def daily_prediction_job():
         try:
+            logger.info(f"Start Generated Today's Zodiac")
             results = generate_daily_predictions(date_value=date.today())
             logger.info(f"✅ Generated {len(results)} predictions for {date.today()}")
         except Exception as e:
@@ -21,5 +22,5 @@ def start():
 
     register_events(scheduler)
     scheduler.start()
-    logger.info("🌅 Zodiac APScheduler started successfully.")
+    logger.info("🌅 Zodiac APScheduler started successfully.") 
  

@@ -12,6 +12,7 @@ urlpatterns = [
     path('plans/', include('plans.urls')),
     path("zodiac/", include("zodiac.urls")),
     path("voice/", include("user_prediction.urls")), 
+    path("future/", include("future_predictions.urls")), 
 ]
 
 if settings.DEBUG:

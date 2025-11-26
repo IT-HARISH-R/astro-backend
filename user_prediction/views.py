@@ -64,6 +64,11 @@ class VoiceAIView(APIView):
 
     def post(self, request):
         user = request.user
+        birth_place = user.birth_place
+
+        # Optional birthplace string
+        birth_place_text = f"- Birth Place: {birth_place}\n" if birth_place else ""
+
 
         audio_file = request.FILES.get('audio')
         text_input = request.data.get('text')
@@ -122,8 +127,8 @@ class VoiceAIView(APIView):
         # --------------------------------------
         # STEP 3: Gemini AI Prompt
         # --------------------------------------
+        # IMPORTANT: Address the user as '{user.username}'.
         prompt = f"""
-            IMPORTANT: Address the user as '{user.username}'.
             Return astrology prediction in Tamil.
 
             User asked: "{user_text}"
@@ -131,7 +136,7 @@ class VoiceAIView(APIView):
             User Details:
             - Birth: {birth_day}/{birth_month}/{birth_year} {birth_hour}:{birth_minute}
             - Moon Rasi: {moon_rasi}
-
+            {birth_place_text}
             Make the prediction simple, short, clear.
             Give only 6–10 lines, no intro, no ending lines.
         """
@@ -182,4 +187,5 @@ class VoiceAIView(APIView):
             "message": user_text,
             "prediction": ai_text,
             "tts_audio_url": tts_url,
+            "dev testing":prompt
         })
