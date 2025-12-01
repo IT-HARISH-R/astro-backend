@@ -13,6 +13,8 @@ urlpatterns = [
     path("zodiac/", include("zodiac.urls")),
     path("voice/", include("user_prediction.urls")), 
     path("future/", include("future_predictions.urls")), 
+    path("api/dashboard/", include("dashboard.urls")) ,
+    path('api/subscriptions/', include('subscriptions.urls')),
 ]
 
 if settings.DEBUG:

@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django_crontab',
     'user_prediction',
     "future_predictions",
+    "dashboard",
+    "subscriptions"
 ]
 
 MIDDLEWARE = [
