@@ -1,17 +1,19 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .models import Plan, UserPlan
-from .serializers import PlanSerializer
-from accounts.models import User
-import razorpay
 from django.conf import settings
+import razorpay
+from django.utils import timezone
 
-# Razorpay client
+
+from .models import Plan, UserPlan, Payment
+from .serializers import PlanSerializer
+
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
+
 # -----------------------------
-# 1. Get all plans
+# 1. Get all plans / Create Plan
 # -----------------------------
 class PlanListView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -27,10 +29,11 @@ class PlanListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
- # -----------------------------
-# 2. Plan Detail View
-# -----------------------------   
 
+
+# -----------------------------
+# 2. Plan Detail CRUD
+# -----------------------------
 class PlanDetailView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -48,10 +51,7 @@ class PlanDetailView(APIView):
         return Response(serializer.data)
 
     def put(self, request, pk):
-        """Full update"""
         plan = self.get_object(pk)
-        if not plan:
-            return Response({"detail": "Plan not found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = PlanSerializer(plan, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -59,10 +59,7 @@ class PlanDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
-        """Partial update"""
         plan = self.get_object(pk)
-        if not plan:
-            return Response({"detail": "Plan not found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = PlanSerializer(plan, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -71,83 +68,89 @@ class PlanDetailView(APIView):
 
     def delete(self, request, pk):
         plan = self.get_object(pk)
-        if not plan:
-            return Response({"detail": "Plan not found"}, status=status.HTTP_404_NOT_FOUND)
         plan.delete()
         return Response({"detail": "Plan deleted"}, status=status.HTTP_204_NO_CONTENT)
-    
-    
+
+
 # -----------------------------
-# 3. Create Razorpay order
+# 3. Create Razorpay Order
 # -----------------------------
 class CreateOrderView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         plan_id = request.data.get("plan_id")
-        if not plan_id:
-            return Response({"error": "plan_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             plan = Plan.objects.get(id=plan_id)
-            amount = int(plan.price * 100)  # Convert to paise
+            amount = int(plan.price * 100)
 
-            order = client.order.create({
-                "amount": amount,
-                "currency": "INR",
-                "payment_capture": 1
-            })
+            # Create Razorpay Order
+            order = client.order.create({"amount": amount, "currency": "INR", "payment_capture": 1})
 
-            # Return Razorpay key and order details to frontend
+            # Save Payment Object
+            payment = Payment.objects.create(
+                user=request.user,
+                plan=plan,
+                amount=plan.price,
+                currency="INR",
+                gateway_order_id=order["id"],
+                status="pending"
+            )
+
             return Response({
                 "key": settings.RAZORPAY_KEY_ID,
                 "order_id": order["id"],
                 "amount": amount,
-                "plan_id": plan_id
-            }, status=status.HTTP_200_OK)
+                "plan_id": plan.id
+            })
 
         except Plan.DoesNotExist:
-            return Response({"error": "Invalid plan"}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": "Invalid plan"}, status=404)
+
 
 # -----------------------------
-# 4. Verify Razorpay payment
+# 4. Verify Razorpay Payment
 # -----------------------------
 class VerifyPaymentView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         data = request.data
-        razorpay_order_id = data.get("order_id")
-        razorpay_payment_id = data.get("payment_id")
-        razorpay_signature = data.get("signature")
-        plan_id = data.get("plan_id")
 
         try:
-            # Verify payment signature
             client.utility.verify_payment_signature({
-                "razorpay_order_id": razorpay_order_id,
-                "razorpay_payment_id": razorpay_payment_id,
-                "razorpay_signature": razorpay_signature
+                "razorpay_order_id": data["order_id"],
+                "razorpay_payment_id": data["payment_id"],
+                "razorpay_signature": data["signature"]
             })
 
-            # Save plan to user
-            plan = Plan.objects.get(id=plan_id)
-            user_plan, _ = UserPlan.objects.get_or_create(user=request.user)
+            plan = Plan.objects.get(id=data["plan_id"])
+            payment = Payment.objects.get(gateway_order_id=data["order_id"])
+
+            # Update payment entry
+            payment.gateway_payment_id = data["payment_id"]
+            payment.gateway_signature = data["signature"]
+            payment.status = "completed"
+            payment.save()
+
+            # Create/Update UserPlan
+            user_plan, created = UserPlan.objects.get_or_create(user=request.user)
             user_plan.plan = plan
             user_plan.is_active = True
+            user_plan.start_date = timezone.now()
+            user_plan.set_end_date()
             user_plan.save()
 
-            # Update user premium flags
+            # User Flags
             user = request.user
-            user.is_premium = plan.name.lower() == "premium"
-            user.plan_type = plan.name
+            user.is_premium = True
+            user.plan_type = plan.plan_type
             user.save()
 
-            return Response({"status": "Payment successful", "plan": plan.name}, status=status.HTTP_200_OK)
+            return Response({"status": "Payment successful", "plan": plan.name})
 
         except razorpay.errors.SignatureVerificationError:
-            return Response({"status": "Payment verification failed"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"status": "Payment verification failed"}, status=400)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=500)

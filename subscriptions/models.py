@@ -112,16 +112,16 @@ class Payment(models.Model):
     def __str__(self):
         return f"Payment #{self.id} - {self.amount} {self.currency}"
 
-class UserPlanFeature(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='plan_features')
-    feature_name = models.CharField(max_length=100)
-    feature_value = models.JSONField(default=dict)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+# class UserPlanFeature(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='plan_features')
+#     feature_name = models.CharField(max_length=100)
+#     feature_value = models.JSONField(default=dict)
+#     is_active = models.BooleanField(default=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        unique_together = ['user', 'feature_name']
+#     class Meta:
+#         unique_together = ['user', 'feature_name']
 
-    def __str__(self):
-        return f"{self.user.username} - {self.feature_name}"
+#     def __str__(self):
+#         return f"{self.user.username} - {self.feature_name}"

@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     "prediction",
     "ai",
     'bot',
-    'payments',
+    # 'payments',
     'plans',
     'email_utils',
     'zodiac',
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'user_prediction',
     "future_predictions",
     "dashboard",
-    "subscriptions"
+    # "subscriptions"
 ]
 
 MIDDLEWARE = [

@@ -98,7 +98,7 @@ class SubscribeView(APIView):
                 {'name': 'future_predictions', 'value': {'limit': 100, 'used': 0}},
                 {'name': 'kundli_analysis', 'value': {'limit': 20, 'used': 0}},
                 {'name': 'priority_support', 'value': {'enabled': True}},
-            ]
+            ] 
         }
         
         # Remove existing features
@@ -111,7 +111,7 @@ class SubscribeView(APIView):
                 user=user,
                 feature_name=feature['name'],
                 feature_value=feature['value']
-            )
+            ) 
 
 class UserSubscriptionView(APIView):
     permission_classes = [IsAuthenticated]
@@ -128,7 +128,7 @@ class UserSubscriptionView(APIView):
             )
 
 class CancelSubscriptionView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated] 
 
     def post(self, request, subscription_id):
         try:

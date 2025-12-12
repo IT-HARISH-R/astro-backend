@@ -32,8 +32,8 @@ class DashboardStatsView(APIView):
 
             # Try to get subscription data
             try:
-                from subscriptions.models import Subscription
-
+                from plans.models import Subscription
+                active_subscriptions = UserPlan.objects.filter(is_active=True).count()
                 active_subscriptions = Subscription.objects.filter(
                     is_active=True
                 ).count()
@@ -157,24 +157,29 @@ class RecentActivityView(APIView):
 
                 # 2. Subscriptions
                 try:
-                    from subscriptions.models import Subscription
+                    from plans.models import Payment
+
                     recent_subscriptions = (
-                        Subscription.objects
+                        Payment.objects
                         .select_related('user', 'plan')
+                        .filter(status="completed")
                         .order_by('-created_at')[:5]
                     )
+
                     for s in recent_subscriptions:
                         activities.append({
                             'type': 'subscription',
                             'user': s.user.username,
-                            'description': f"Subscription : {s.plan.name}",
+                            'description': f"Subscription : {s.plan.plan_type}",
                             'timestamp': s.created_at,
-                            'amount': float(s.amount_paid) if s.amount_paid else 0,
-                            'status': 'completed' if getattr(s, 'is_active', False) else 'pending',
+                            'amount': float(s.amount or 0),
+                            'status': s.status,  # completed / pending / failed
                             'avatar': self.get_avatar_initials(s.user.username)
                         })
+
                 except ImportError:
                     pass
+
 
                 # 3. Future Prediction Activities
                 try:
@@ -267,7 +272,7 @@ class RecentActivityView(APIView):
 
                 # User's subscriptions
                 try:
-                    from subscriptions.models import Subscription
+                    from plans.models import Subscription
                     user_subscriptions = (
                         Subscription.objects
                         .filter(user=user)
@@ -310,7 +315,6 @@ class RevenueAnalyticsView(APIView):
 
     def get(self, request):
         try:
-            # Only admin users can access revenue analytics
             if not request.user.is_staff:
                 return Response({
                     'labels': [],
@@ -319,44 +323,152 @@ class RevenueAnalyticsView(APIView):
                     'message': 'Revenue analytics available for admin users only'
                 })
 
-            # Get revenue data for the last 30 days
-            end_date = timezone.now().date()
-            start_date = end_date - timedelta(days=30)
-            
-            # Try to get subscription data
-            try:
-                from subscriptions.models import Subscription
-                daily_revenue = Subscription.objects.filter(
-                    created_at__date__range=[start_date, end_date]
-                ).extra(
-                    {'date': "date(created_at)"}
-                ).values('date').annotate(
-                    total_revenue=Sum('amount_paid'),
-                    subscription_count=Count('id')
-                ).order_by('date')
+            from plans.models import Payment, UserPlan
 
-                # Format data for charts
-                revenue_data = {
-                    'labels': [],
-                    'revenue': [],
-                    'subscriptions': []
+            today = timezone.now().date()
+
+            # ----------------------------
+            # 📌 Month Start (1st day of month)
+            # ----------------------------
+            month_start = today.replace(day=1)
+
+            # ----------------------------
+            # 📌 Week Start (Monday)
+            # ----------------------------
+            week_start = today - timedelta(days=today.weekday())
+
+            # ----------------------------
+            # 📌 30 Days Chart Range
+            # ----------------------------
+            start_date = today - timedelta(days=30)
+
+            # ----------------------------
+            # 📌 Daily Chart Data (Last 30 days)
+            # ----------------------------
+            daily_data = Payment.objects.filter(
+                created_at__date__range=[start_date, today],
+                status="completed"
+            ).extra({'date': "date(created_at)"}
+            ).values('date').annotate(
+                total_revenue=Sum('amount'),
+                subs_count=Count('id')
+            ).order_by('date')
+
+            chart = {
+                "labels": [],
+                "revenue": [],
+                "subscriptions": [],
+            }
+
+            for item in daily_data:
+                chart["labels"].append(item["date"].strftime('%Y-%m-%d'))
+                chart["revenue"].append(float(item["total_revenue"] or 0))
+                chart["subscriptions"].append(item["subs_count"])
+
+            # ----------------------------
+            # 📌 Monthly Revenue (1st → today)
+            # ----------------------------
+            monthly_revenue = Payment.objects.filter(
+                status="completed",
+                created_at__date__range=[month_start, today]
+            ).aggregate(total=Sum("amount"))["total"] or 0
+
+            # ----------------------------
+            # 📌 Weekly Revenue (Mon → today)
+            # ----------------------------
+            weekly_revenue = Payment.objects.filter(
+                status="completed",
+                created_at__date__range=[week_start, today]
+            ).aggregate(total=Sum("amount"))["total"] or 0
+
+            # ----------------------------
+            # 📌 Total Revenue (30 days)
+            # ----------------------------
+            total_revenue = Payment.objects.filter(
+                status="completed",
+                created_at__date__range=[start_date, today]
+            ).aggregate(total=Sum("amount"))["total"] or 0
+
+            # ----------------------------
+            # 📌 Active Subscriptions
+            # ----------------------------
+            active_subs = UserPlan.objects.filter(is_active=True).count()
+
+            # ----------------------------
+            # 📌 Today's Revenue
+            # ----------------------------
+            todays_revenue = Payment.objects.filter(
+                status="completed",
+                created_at__date=today
+            ).aggregate(total=Sum("amount"))["total"] or 0
+
+            # ----------------------------
+            # 📌 Revenue Growth %
+            # ----------------------------
+            prev_30_start = start_date - timedelta(days=30)
+            prev_30_end = start_date
+
+            prev_revenue = Payment.objects.filter(
+                status="completed",
+                created_at__date__range=[prev_30_start, prev_30_end]
+            ).aggregate(total=Sum("amount"))["total"] or 0
+
+            if prev_revenue == 0:
+                revenue_growth = "+0%"
+            else:
+                growth = ((total_revenue - prev_revenue) / prev_revenue) * 100
+                revenue_growth = f"{growth:.2f}%"
+
+            # =======================================================
+            # 📌 SUBSCRIPTION GROWTH (%)
+            # =======================================================
+
+            # Current month subscriptions
+            current_month_subs = UserPlan.objects.filter(
+                start_date__date__range=[month_start, today]
+            ).count()
+
+            # Previous month range
+            prev_month_end = month_start - timedelta(days=1)
+            prev_month_start = prev_month_end.replace(day=1)
+
+            previous_month_subs = UserPlan.objects.filter(
+                start_date__date__range=[prev_month_start, prev_month_end]
+            ).count()
+
+            if previous_month_subs == 0:
+                subscription_growth = "+0%"
+            else:
+                subs_g = ((current_month_subs - previous_month_subs) / previous_month_subs) * 100
+                subscription_growth = f"{subs_g:.2f}%"
+
+            # =======================================================
+
+            # ----------------------------
+            # 📌 FINAL RESPONSE
+            # ----------------------------
+            return Response({
+                "chart": chart,
+                "metrics": {
+                    "total_revenue": float(total_revenue),
+                    "monthly_revenue": float(monthly_revenue),
+                    "weekly_revenue": float(weekly_revenue),
+                    "todays_revenue": float(todays_revenue),
+                    "active_subscriptions": active_subs,
+                    "revenue_growth": revenue_growth,
+
+                    # 🔥 NEW METRICS ADDED
+                    "monthly_subscriptions": current_month_subs,
+                    "subscription_growth": subscription_growth,
+
+                    "week_start": week_start.strftime("%Y-%m-%d"),
+                    "month_start": month_start.strftime("%Y-%m-%d")
                 }
-
-                for day in daily_revenue:
-                    revenue_data['labels'].append(day['date'].strftime('%Y-%m-%d'))
-                    revenue_data['revenue'].append(float(day['total_revenue'] or 0))
-                    revenue_data['subscriptions'].append(day['subscription_count'])
-
-                return Response(revenue_data)
-
-            except ImportError:
-                # Return empty data if subscriptions app doesn't exist
-                return Response({
-                    'labels': [],
-                    'revenue': [],
-                    'subscriptions': []
-                })
+            })
 
         except Exception as e:
             logger.error(f"Revenue analytics error: {str(e)}")
-            return Response({'error': 'Failed to fetch revenue analytics'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {'error': 'Failed to fetch revenue analytics'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
