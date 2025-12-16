@@ -23,12 +23,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
 
-        send_account_created_email(
-            user=user,
-            subject="Welcome to Astro Platform!",
-            template_name="email_utils/account_created.html",
-            context={"custom_message": "Your account is now active!"}
-        )
+        # send_account_created_email(
+        #     user=user,
+        #     subject="Welcome to Astro Platform!",
+        #     template_name="email_utils/account_created.html",
+        #     context={"custom_message": "Your account is now active!"}
+        # )
 
         return user
 
