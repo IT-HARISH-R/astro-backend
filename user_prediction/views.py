@@ -6,18 +6,17 @@ from rest_framework.response import Response
 import swisseph as swe
 from .services import get_sidereal_longitude
 import google.generativeai as genai
-from django.conf import settings
+from django.conf import settings 
 
 from gtts import gTTS
 import uuid
 import os
 import time
 
-from .models import ChatRoom, ChatMessage
+from .models import ChatRoom, ChatMessage 
 
 
 client = Groq(api_key=settings.GROQ_API_KEY)
-
 
 def delete_old_tts_files(folder, seconds=86400):
     """Delete TTS files older than given seconds (default: 24 hours)."""
@@ -86,7 +85,8 @@ class VoiceAIView(APIView):
         elif audio_file:
             try:
                 audio_bytes = audio_file.read()
-
+                print("Groq api key",settings.GROQ_API_KEY)
+                
                 transcript = client.audio.transcriptions.create(
                     file=("audio.webm", audio_bytes),
                     model="whisper-large-v3",

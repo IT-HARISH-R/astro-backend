@@ -1,28 +1,44 @@
-# Python
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual env
+# Virtual environment
+.venv/
 venv/
 env/
+ENV/
 
 # Django stuff
+*.log
+*.pot
+*.pyc
+*.sqlite3
 db.sqlite3
-staticfiles/
-media/
+*.pyo
 
-# Secrets
+# Migrations
+*/migrations/*.py
+*/migrations/*.pyc
+!*/migrations/__init__.py
+
+# Env files
 .env
-*.env
+.env.*
 
-# IDE / OS
+# IDEs / editors
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
 .DS_Store
 Thumbs.db
 
-# Node (if using React/Tailwind)
+# Node modules (if using React)
 node_modules/
-build/
-dist/
+
+# Static / media files
+staticfiles/
+media/
