@@ -47,6 +47,7 @@ class RegeneratePrediction(APIView):
 
 
 class LoveCalculatorView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = LoveCalculatorSerializer(data=request.data)
 
