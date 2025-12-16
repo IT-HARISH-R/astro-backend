@@ -32,8 +32,8 @@ class AstroThanglishAPIView(APIView):
             # ---- Username from middleware ----
             username = getattr(request, "username", None)
             user = getattr(request, "user", None)
-            if username is None:
-                return Response({"message": "No username found in request"}, status=401)
+            # if username is None:
+            #     return Response({"message": "No username found in request"}, status=401)
 
             # ---- Input data ----
             data = request.data
@@ -64,9 +64,17 @@ class AstroThanglishAPIView(APIView):
                 "rasi": moon_rasi
             }
 
+            def get_user_language(user):
+                if user and user.is_authenticated:
+                    return getattr(user, "language", "thanglish")
+                return "thanglish"
+
+            language = get_user_language(user)  
+
+
             # ---- Prompt (Rasi included) ----
             prompt = (
-                f"Generate ONLY the astrology prediction in {user.language}. "
+                f"Generate ONLY the astrology prediction in {language}. "
                 "DO NOT include greetings, explanations, zodiac sign names, extra text, questions, or suggestions. "
                 "ONLY provide the pure prediction content.\n\n"
                 f"User Rasi: {moon_rasi}\n"
@@ -110,21 +118,23 @@ class AstroThanglishAPIView(APIView):
             # ---- Validate user ----
             user = getattr(request, "user", None)
             if not user:
-                return Response({"message": "User not found or unauthorized"}, status=401)
+                user="not fount"
+                # return Response({"message": "User not found or unauthorized"}, status=401)
 
             # ---- Save prediction ----
-            prediction = Prediction.objects.create(
-                user=user,
-                birth_year=year,
-                birth_month=month,
-                birth_day=day,
-                birth_hour=hour,
-                birth_minute=minute,
-                julian_day=jd_ut,
-                sun_longitude=sun_long,
-                moon_longitude=moon_long,
-                thanglish_explanation=text_output or "No output"
-            )
+            if user.is_authenticated:
+                Prediction.objects.create(
+                    user=user,
+                    birth_year=year,
+                    birth_month=month,
+                    birth_day=day,
+                    birth_hour=hour,
+                    birth_minute=minute,
+                    julian_day=jd_ut,
+                    sun_longitude=sun_long,
+                    moon_longitude=moon_long,
+                    thanglish_explanation=text_output or "No output"
+                )
 
             # ---- Response ----
             return Response(
