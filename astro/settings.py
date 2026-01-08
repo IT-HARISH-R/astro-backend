@@ -109,16 +109,16 @@ WSGI_APPLICATION = "astro.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-       'ENGINE': 'mysql.connector.django',
-        'NAME': 'astrology',
-        'USER': 'root',
-        'PASSWORD': 'Harish@2004',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
-} 
+# DATABASES = {
+#     "default": {
+#        'ENGINE': 'mysql.connector.django',
+#         'NAME': 'astrology',
+#         'USER': 'root',
+#         'PASSWORD': 'Harish@2004',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# } 
 
 DBENGINE= config("DBENGINE") 
 DBNAME= config("DBNAME") 
@@ -128,16 +128,16 @@ HOST= config("HOST")
 DBPORT= config("DBPORT") 
 
 
-# DATABASES = {
-#     "default": {
-#        'ENGINE': DBENGINE,
-#         'NAME': DBNAME,
-#         'USER': DBUSER,
-#         'PASSWORD': DBPASSWORD,
-#         'HOST': HOST,
-#         'PORT': DBPORT,
-#     }
-# }
+DATABASES = {
+    "default": {
+       'ENGINE': DBENGINE,
+        'NAME': DBNAME,
+        'USER': DBUSER,
+        'PASSWORD': DBPASSWORD,
+        'HOST': HOST,
+        'PORT': DBPORT,
+    }
+}
 
 
 # Password validation
