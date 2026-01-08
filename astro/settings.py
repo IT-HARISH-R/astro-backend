@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'user_prediction',
     "future_predictions",
     "dashboard",
-    # "subscriptions"
+    # "subscriptions",
+    "contact"
 ]
 
 MIDDLEWARE = [
@@ -87,10 +88,13 @@ ROOT_URLCONF = "astro.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / 'templates',
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                'django.template.context_processors.debug',
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -105,16 +109,16 @@ WSGI_APPLICATION = "astro.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#        'ENGINE': 'mysql.connector.django',
-#         'NAME': 'astrology',
-#         'USER': 'root',
-#         'PASSWORD': 'Harish@2004',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# } 
+DATABASES = {
+    "default": {
+       'ENGINE': 'mysql.connector.django',
+        'NAME': 'astrology',
+        'USER': 'root',
+        'PASSWORD': 'Harish@2004',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+} 
 
 DBENGINE= config("DBENGINE") 
 DBNAME= config("DBNAME") 
@@ -124,16 +128,16 @@ HOST= config("HOST")
 DBPORT= config("DBPORT") 
 
 
-DATABASES = {
-    "default": {
-       'ENGINE': DBENGINE,
-        'NAME': DBNAME,
-        'USER': DBUSER,
-        'PASSWORD': DBPASSWORD,
-        'HOST': HOST,
-        'PORT': DBPORT,
-    }
-}
+# DATABASES = {
+#     "default": {
+#        'ENGINE': DBENGINE,
+#         'NAME': DBNAME,
+#         'USER': DBUSER,
+#         'PASSWORD': DBPASSWORD,
+#         'HOST': HOST,
+#         'PORT': DBPORT,
+#     }
+# }
 
 
 # Password validation
@@ -247,10 +251,12 @@ cloudinary.config(
 RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET")
 
-
+ 
 # Email config
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD") 
+ADMIN_EMAIL = config("ADMIN_EMAIL") 
+DEFAULT_FROM_EMAIL  = config("DEFAULT_FROM_EMAIL") 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -258,6 +264,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
+ADMIN_EMAIL = ADMIN_EMAIL
+DEFAULT_FROM_EMAIL =DEFAULT_FROM_EMAIL 
 
 
 # Sarvam Voice

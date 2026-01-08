@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response from AstroVerse</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+        
+        .stars-icon {
+            font-size: 32px;
+            margin: 15px 0;
+            opacity: 0.9;
+        }
+        
+        .email-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        
+        .email-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .email-content {
+            padding: 40px;
+        }
+        
+        .greeting {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 25px;
+        }
+        
+        .original-message {
+            background: linear-gradient(135deg, #f6f9ff 0%, #f0f4ff 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .original-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .original-content {
+            color: #4b5563;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        
+        .reply-message {
+            background: linear-gradient(135deg, #f0fff4 0%, #f0fff0 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid #10b981;
+        }
+        
+        .reply-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .reply-content {
+            color: #374151;
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        
+        .info-box {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 100px;
+        }
+        
+        .info-value {
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px 40px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .footer-links {
+            margin-top: 15px;
+        }
+        
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 500;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .signature {
+            margin-top: 20px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .cosmic-bg {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 28px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 10px 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        @media (max-width: 480px) {
+            .email-content {
+                padding: 25px 20px;
+            }
+            
+            .email-header {
+                padding: 30px 20px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="logo">🌌 AstroVerse</div>
+            <div class="stars-icon">⭐✨🌠</div>
+            <h1 class="email-title">Response to Your Message</h1>
+            <p class="email-subtitle">Cosmic Support Team</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="email-content">
+            <p class="greeting">Dear <strong>{{ inquiry.name }}</strong>,</p>
+            
+            <p>Thank you for reaching out to AstroVerse! We appreciate you taking the time to contact us.</p>
+            
+            <!-- Original Message -->
+            <div class="original-message">
+                <div class="original-title">Your Original Message:</div>
+                <div class="original-content">{{ inquiry.message|linebreaks }}</div>
+            </div>
+            
+            <!-- Our Reply -->
+            <div class="reply-message">
+                <div class="reply-title">Our Response:</div>
+                <div class="reply-content">{{ reply_message|linebreaks }}</div>
+            </div>
+            
+            <!-- Information -->
+            <div class="info-box">
+                <div class="info-item">
+                    <span class="info-label">Subject:</span>
+                    <span class="info-value">{{ inquiry.subject }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date Sent:</span>
+                    <span class="info-value">{{ inquiry.created_at|date:"F d, Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Reply Date:</span>
+                    <span class="info-value">{{ reply_date|date:"F d, Y \a\t h:i A" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Reference ID:</span>
+                    <span class="info-value">#{{ inquiry.id }}</span>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="cosmic-bg">
+                <p>Need more assistance? We're here to help!</p>
+                <div style="margin-top: 20px;">
+                    <a href="mailto:{{ support_email }}" class="button">Reply to This Email</a>
+                    <a href="https://astroverse.com/contact" class="button">Visit Contact Page</a>
+                </div>
+            </div>
+            
+            <p>We strive to provide the best possible support for our cosmic community. If you have any further questions, don't hesitate to reach out.</p>
+            
+            <p class="signature">With celestial regards,<br>
+            <strong>The AstroVerse Support Team</strong></p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; {{ reply_date|date:"Y" }} AstroVerse. All rights reserved.</p>
+            <p>Exploring the cosmos, one star at a time ✨</p>
+            
+            <div class="footer-links">
+                <a href="https://astroverse.com">Website</a> | 
+                <a href="https://astroverse.com/privacy">Privacy Policy</a> | 
+                <a href="https://astroverse.com/terms">Terms of Service</a> | 
+                <a href="mailto:{{ support_email }}">Contact Support</a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
+                This email was sent in response to your inquiry from {{ inquiry.created_at|date:"F d, Y" }}.
+                If you didn't contact AstroVerse, please ignore this message.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

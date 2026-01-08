@@ -144,7 +144,7 @@ class AstroThanglishAPIView(APIView):
                     "thanglish_explanation": text_output or "No output"
                 },
                 status=status.HTTP_200_OK
-            )
+            )  
 
         except Exception as e:
             logger.exception("Error in AstroThanglishAPIView")

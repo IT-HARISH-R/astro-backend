@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def start():
     scheduler = BackgroundScheduler(timezone="Asia/Kolkata")
 
-    @register_job(scheduler, "cron", hour=0, minute=0)   
+    @register_job(scheduler, "cron", hour=15, minute=33)     
     def daily_prediction_job():
         try:
             logger.info(f"Start Generated Today's Zodiac")
