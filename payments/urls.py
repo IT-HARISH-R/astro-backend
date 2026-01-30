@@ -1,7 +1,16 @@
 from django.urls import path
-from .views import CreateOrderView, VerifyPaymentView
+from .views import (
+    GetPaymentsView,
+    GetPaymentDetailsView,
+    UpdatePaymentStatusView,
+    ExportPaymentsView,
+    PaymentAnalyticsView
+)
 
 urlpatterns = [
-    path('create-order/', CreateOrderView.as_view(), name='create-order'),
-    path('verify-payment/', VerifyPaymentView.as_view(), name='verify-payment'),
+    path('', GetPaymentsView.as_view(), name='get-payments'),
+    path('<int:payment_id>/', GetPaymentDetailsView.as_view(), name='get-payment-details'),
+    path('<int:payment_id>/update-status/', UpdatePaymentStatusView.as_view(), name='update-payment-status'),
+    path('export/', ExportPaymentsView.as_view(), name='export-payments'),
+    path('analytics/', PaymentAnalyticsView.as_view(), name='payment-analytics'),
 ]

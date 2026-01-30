@@ -87,11 +87,11 @@ class EmailService:
         </head>
         <body>
             <div class="header">
-                <h1>AstroVerse Support</h1>
+                <h1>Astro Support</h1>
             </div>
             <div class="content">
                 <p>Dear {inquiry.name},</p>
-                <p>Thank you for contacting AstroVerse. Here is our response to your inquiry:</p>
+                <p>Thank you for contacting Astro. Here is our response to your inquiry:</p>
                 
                 <div class="original">
                     <strong>Your Original Message:</strong>
@@ -103,10 +103,10 @@ class EmailService:
                     <p>{reply_message}</p>
                 </div>
                 
-                <p>Best regards,<br>The AstroVerse Team</p>
+                <p>Best regards,<br>The Astro Team</p>
             </div>
             <div class="footer">
-                <p>&copy; {context['reply_date'].year} AstroVerse</p>
+                <p>&copy; {context['reply_date'].year} Astro</p>
                 <p>Reference: #{inquiry.id}</p>
             </div>
         </body>
@@ -119,7 +119,7 @@ class EmailService:
         text_content = f"""
         Dear {inquiry.name},
         
-        Thank you for contacting AstroVerse. Here is our response:
+        Thank you for contacting Astro. Here is our response:
         
         Your original message:
         {inquiry.message}
@@ -128,7 +128,7 @@ class EmailService:
         {reply_message}
         
         Best regards,
-        The AstroVerse Team
+        The Astro Team
         
         Reference ID: #{inquiry.id}
         """
